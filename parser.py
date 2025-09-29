@@ -1,3 +1,4 @@
+# filename: parser.py
 import re
 
 # --- Tokenizer ---
@@ -53,6 +54,11 @@ def tokenize(lines):
                     "var": match.group(1),
                     "value": match.group(2).strip()
                 })
+        
+        # Macro: {{namee}}
+        elif line.startswith("{{") and line.endswith("}}"):
+            macro_name = line[2:-2].strip()
+            tokens.append({"type": "macro", "name": macro_name})
 
         # Narration fallback
         else:
@@ -73,7 +79,26 @@ def parse(tokens):
             if not current_scene:
                 raise ValueError("Event outside of a scene")
             current_scene["events"].append(token)
-    return scenes
+
+    expanded_scenes = {}
+    for scene_name, scene_data in scenes.items():
+        expanded_events = []
+        for event in scene_data["events"]:
+            if event["type"] == "macro":
+                macro_name = event["name"]
+                if macro_name not in scenes:
+                    raise ValueError(f"Macro '{macro_name}' not found in scene '{scene_name}'")
+                # Substitute the macro token with the events from the target scene
+                expanded_events.extend(scenes[macro_name]["events"])
+            else:
+                expanded_events.append(event)
+        
+        expanded_scenes[scene_name] = {
+            "name": scene_name,
+            "events": expanded_events
+        }
+
+    return expanded_scenes
 
 
 # --- Condition Evaluator ---
