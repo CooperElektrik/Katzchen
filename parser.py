@@ -1,4 +1,3 @@
-# filename: parser.py
 import re
 
 # --- Tokenizer ---

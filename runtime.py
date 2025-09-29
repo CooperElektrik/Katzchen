@@ -30,10 +30,12 @@ def play(scenes, start_scene, state=None):
 
             if event["type"] == "dialogue":
                 print(f"{event['speaker']}: {event['text']}")
+                input()
                 i += 1
 
             elif event["type"] == "narration":
                 print(event["text"])
+                input()
                 i += 1
 
             elif event["type"] == "set":
