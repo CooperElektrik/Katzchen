@@ -1,5 +1,6 @@
 from parser import parse_value, parse, tokenize
 
+
 def check_condition(cond, state):
     if not cond:
         return True
@@ -10,13 +11,20 @@ def check_condition(cond, state):
         var, op, val = parts
         sval = state.get(var, 0)
         val = parse_value(val)
-        if op == "==": return sval == val
-        if op == "!=": return sval != val
-        if op == ">": return sval > val
-        if op == "<": return sval < val
-        if op == ">=": return sval >= val
-        if op == "<=": return sval <= val
+        if op == "==":
+            return sval == val
+        if op == "!=":
+            return sval != val
+        if op == ">":
+            return sval > val
+        if op == "<":
+            return sval < val
+        if op == ">=":
+            return sval >= val
+        if op == "<=":
+            return sval <= val
     return False
+
 
 def play(scenes, start_scene, state=None):
     if state is None:
@@ -52,7 +60,9 @@ def play(scenes, start_scene, state=None):
             elif event["type"] == "choice":
                 # gather consecutive choices
                 choices = []
-                while i < len(scene["events"]) and scene["events"][i]["type"] == "choice":
+                while (
+                    i < len(scene["events"]) and scene["events"][i]["type"] == "choice"
+                ):
                     choices.append(scene["events"][i])
                     i += 1
 
@@ -74,11 +84,11 @@ def play(scenes, start_scene, state=None):
         else:
             scene = None
 
+
 if __name__ == "__main__":
 
     with open("script.md", "r") as f:
         script = f.read()
-
 
     tokens = tokenize(script.splitlines())
     graph = parse(tokens)

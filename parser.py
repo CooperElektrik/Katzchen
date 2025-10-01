@@ -1,5 +1,6 @@
 import re
 
+
 # --- Tokenizer ---
 def tokenize(lines):
     tokens = []
@@ -15,45 +16,57 @@ def tokenize(lines):
 
         # Choice line: - [Text](target) [optional: set var=value]
         elif line.startswith("- ["):
-            match = re.match(r"- \[(.+?)\]\((.+?)\)(?:\s+set\s+(\w+)\s*=\s*(.+))?", line)
+            match = re.match(
+                r"- \[(.+?)\]\((.+?)\)(?:\s+set\s+(\w+)\s*=\s*(.+))?", line
+            )
             if match:
-                tokens.append({
-                    "type": "choice",
-                    "text": match.group(1),
-                    "target": match.group(2),
-                    "set": (match.group(3), match.group(4)) if match.group(3) else None
-                })
+                tokens.append(
+                    {
+                        "type": "choice",
+                        "text": match.group(1),
+                        "target": match.group(2),
+                        "set": (
+                            (match.group(3), match.group(4)) if match.group(3) else None
+                        ),
+                    }
+                )
 
         # Dialogue line: **Name**: text
         elif line.startswith("**"):
             match = re.match(r"\*\*(.+?)\*\*: (.+)", line)
             if match:
-                tokens.append({
-                    "type": "dialogue",
-                    "speaker": match.group(1),
-                    "text": match.group(2)
-                })
+                tokens.append(
+                    {
+                        "type": "dialogue",
+                        "speaker": match.group(1),
+                        "text": match.group(2),
+                    }
+                )
 
         # Jump: > target ? condition
         elif line.startswith(">"):
             match = re.match(r">\s*(\w+)(?:\s*\?\s*(.+))?", line)
             if match:
-                tokens.append({
-                    "type": "jump",
-                    "target": match.group(1),
-                    "condition": match.group(2)
-                })
+                tokens.append(
+                    {
+                        "type": "jump",
+                        "target": match.group(1),
+                        "condition": match.group(2),
+                    }
+                )
 
         # Assignment: @ var = value
         elif line.startswith("@"):
             match = re.match(r"@\s*(\w+)\s*=\s*(.+)", line)
             if match:
-                tokens.append({
-                    "type": "set",
-                    "var": match.group(1),
-                    "value": match.group(2).strip()
-                })
-        
+                tokens.append(
+                    {
+                        "type": "set",
+                        "var": match.group(1),
+                        "value": match.group(2).strip(),
+                    }
+                )
+
         # Macro: {{namee}}
         elif line.startswith("{{") and line.endswith("}}"):
             macro_name = line[2:-2].strip()
@@ -86,26 +99,26 @@ def parse(tokens):
             if event["type"] == "macro":
                 macro_name = event["name"]
                 if macro_name not in scenes:
-                    raise ValueError(f"Macro '{macro_name}' not found in scene '{scene_name}'")
+                    raise ValueError(
+                        f"Macro '{macro_name}' not found in scene '{scene_name}'"
+                    )
                 # Substitute the macro token with the events from the target scene
                 expanded_events.extend(scenes[macro_name]["events"])
             else:
                 expanded_events.append(event)
-        
-        expanded_scenes[scene_name] = {
-            "name": scene_name,
-            "events": expanded_events
-        }
+
+        expanded_scenes[scene_name] = {"name": scene_name, "events": expanded_events}
 
     return expanded_scenes
 
 
 # --- Condition Evaluator ---
 def parse_value(val):
-    if val.lower() == "true": return True
-    if val.lower() == "false": return False
+    if val.lower() == "true":
+        return True
+    if val.lower() == "false":
+        return False
     try:
         return int(val)
     except ValueError:
         return val.strip('"').strip("'")
-    
