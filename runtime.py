@@ -81,6 +81,9 @@ def play(scenes, start_scene, state=None):
                     else:
                         print("Invalid choice, try again.")
                 break  # jump ends current scene
+            else:
+                print(f"Unrecognized event type {event['type']}. Are you using the correct version of the script? Skipping...")
+                i += 1
         else:
             scene = None
 
