@@ -165,115 +165,17 @@ def parse(tokens):
                         f"Macro '{macro_name}' not found in scene '{scene_name}'"
                     )
                 # Substitute the macro token with the events from the target scene
-                expanded_events.extend(scenes[macro_name]["events"])
+                macro_events = scenes[macro_name]["events"]
+                for event in macro_events:
+                    if event["type"] == "codeblock":
+                        expanded_events.extend(parse_codeblock(event, []))
+                
                 logger.debug(
                     f"Expanded macro '{macro_name}' with {len(scenes[macro_name]['events'])} events."
                 )
 
             elif event["type"] == "codeblock":
-                lang = event["lang"]
-                logger.debug(f"Parsing codeblock of language: {lang}")
-                for line in event["content"]:
-                    # --- Character commands ---
-                    if lang == "char":
-                        if m := char_show_re.match(line):
-                            expanded_events.append(
-                                {
-                                    "type": "char_show",
-                                    "char_id": m.group(1),
-                                    "image_name": m.group(2),
-                                    "x": float(m.group(3)),
-                                    "y": float(m.group(4)),
-                                    "scale": float(m.group(5)) if m.group(5) else 1.0,
-                                }
-                            )
-                            logger.debug(f"Parsed char_show for {m.group(1)}: {line}")
-                        elif m := char_hide_re.match(line):
-                            expanded_events.append(
-                                {"type": "char_hide", "char_id": m.group(1)}
-                            )
-                            logger.debug(f"Parsed char_hide for {m.group(1)}: {line}")
-                        elif m := char_move_re.match(line):
-                            expanded_events.append(
-                                {
-                                    "type": "char_move",
-                                    "char_id": m.group(1),
-                                    "x": float(m.group(2)),
-                                    "y": float(m.group(3)),
-                                    "duration": (
-                                        float(m.group(4)) if m.group(4) else 0.5
-                                    ),
-                                }
-                            )
-                            logger.debug(f"Parsed char_move for {m.group(1)}: {line}")
-                        elif m := char_expr_re.match(line):
-                            expanded_events.append(
-                                {
-                                    "type": "char_expr",
-                                    "char_id": m.group(1),
-                                    "image_name": m.group(2),
-                                }
-                            )
-                            logger.debug(f"Parsed char_expr for {m.group(1)}: {line}")
-                        else:
-                            logger.warning(
-                                f"Unknown 'char' command in codeblock: {line}"
-                            )
-
-                    # --- Transition commands ---
-                    elif lang == "transition":
-                        if m := fade_out_re.match(line):
-                            duration = float(m.group(1)) if m.group(1) else 1.0
-                            color = (
-                                (
-                                    int(m.group(2)),
-                                    int(m.group(3)),
-                                    int(m.group(4)),
-                                    int(m.group(5)) if m.group(5) else 255,
-                                )
-                                if m.group(2)
-                                else (0, 0, 0, 255)
-                            )
-                            expanded_events.append(
-                                {
-                                    "type": "fade_out",
-                                    "duration": duration,
-                                    "color": color,
-                                }
-                            )
-                            logger.debug(f"Parsed fade_out: {line}")
-                        elif m := fade_in_re.match(line):
-                            duration = float(m.group(1)) if m.group(1) else 1.0
-                            color = (
-                                (
-                                    int(m.group(2)),
-                                    int(m.group(3)),
-                                    int(m.group(4)),
-                                    int(m.group(5)) if m.group(5) else 255,
-                                )
-                                if m.group(2)
-                                else (0, 0, 0, 255)
-                            )
-                            expanded_events.append(
-                                {
-                                    "type": "fade_in",
-                                    "duration": duration,
-                                    "color": color,
-                                }
-                            )
-                            logger.debug(f"Parsed fade_in: {line}")
-                        else:
-                            logger.warning(
-                                f"Unknown 'transition' command in codeblock: {line}"
-                            )
-
-                    else:
-                        # Unknown codeblock type: keep raw
-                        expanded_events.append(event)
-                        logger.warning(
-                            f"Unknown codeblock language '{lang}'. Keeping raw token for line: {line}"
-                        )
-
+                expanded_events = parse_codeblock(event, expanded_events)
             else:
                 expanded_events.append(event)
                 logger.debug(f"Keeping raw event type: {event['type']}")
@@ -285,6 +187,111 @@ def parse(tokens):
 
     logger.info(f"Parsing complete. Total expanded scenes: {len(expanded_scenes)}")
     return expanded_scenes
+
+def parse_codeblock(event, expanded_events):
+    lang = event["lang"]
+    logger.debug(f"Parsing codeblock of language: {lang}")
+    for line in event["content"]:
+        # --- Character commands ---
+        if lang == "char":
+            if m := char_show_re.match(line):
+                expanded_events.append(
+                    {
+                        "type": "char_show",
+                        "char_id": m.group(1),
+                        "image_name": m.group(2),
+                        "x": float(m.group(3)),
+                        "y": float(m.group(4)),
+                        "scale": float(m.group(5)) if m.group(5) else 1.0,
+                    }
+                )
+                logger.debug(f"Parsed char_show for {m.group(1)}: {line}")
+            elif m := char_hide_re.match(line):
+                expanded_events.append(
+                    {"type": "char_hide", "char_id": m.group(1)}
+                )
+                logger.debug(f"Parsed char_hide for {m.group(1)}: {line}")
+            elif m := char_move_re.match(line):
+                expanded_events.append(
+                    {
+                        "type": "char_move",
+                        "char_id": m.group(1),
+                        "x": float(m.group(2)),
+                        "y": float(m.group(3)),
+                        "duration": (
+                            float(m.group(4)) if m.group(4) else 0.5
+                        ),
+                    }
+                )
+                logger.debug(f"Parsed char_move for {m.group(1)}: {line}")
+            elif m := char_expr_re.match(line):
+                expanded_events.append(
+                    {
+                        "type": "char_expr",
+                        "char_id": m.group(1),
+                        "image_name": m.group(2),
+                    }
+                )
+                logger.debug(f"Parsed char_expr for {m.group(1)}: {line}")
+            else:
+                logger.warning(
+                    f"Unknown 'char' command in codeblock: {line}"
+                )
+
+        # --- Transition commands ---
+        elif lang == "transition":
+            if m := fade_out_re.match(line):
+                duration = float(m.group(1)) if m.group(1) else 1.0
+                color = (
+                    (
+                        int(m.group(2)),
+                        int(m.group(3)),
+                        int(m.group(4)),
+                        int(m.group(5)) if m.group(5) else 255,
+                    )
+                    if m.group(2)
+                    else (0, 0, 0, 255)
+                )
+                expanded_events.append(
+                    {
+                        "type": "fade_out",
+                        "duration": duration,
+                        "color": color,
+                    }
+                )
+                logger.debug(f"Parsed fade_out: {line}")
+            elif m := fade_in_re.match(line):
+                duration = float(m.group(1)) if m.group(1) else 1.0
+                color = (
+                    (
+                        int(m.group(2)),
+                        int(m.group(3)),
+                        int(m.group(4)),
+                        int(m.group(5)) if m.group(5) else 255,
+                    )
+                    if m.group(2)
+                    else (0, 0, 0, 255)
+                )
+                expanded_events.append(
+                    {
+                        "type": "fade_in",
+                        "duration": duration,
+                        "color": color,
+                    }
+                )
+                logger.debug(f"Parsed fade_in: {line}")
+            else:
+                logger.warning(
+                    f"Unknown 'transition' command in codeblock: {line}"
+                )
+
+        else:
+            # Unknown codeblock type: keep raw
+            expanded_events.append(event)
+            logger.warning(
+                f"Unknown codeblock language '{lang}'. Keeping raw token for line: {line}"
+            )
+    return expanded_events
 
 
 # --- Condition Evaluator ---

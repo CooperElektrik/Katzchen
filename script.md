@@ -15,14 +15,7 @@ One could just leave them standing there, of course. There would be no consequen
 - [Stay perfectly silent and wait](StaySilent) set answered=False
 
 ## AnswerDoor
-```char
-show alice happy.png 0.2 0.8 1.0
-move alice 0.5 0.8 1.5
-```
-```transition
-fade_out 1.0 (0,0,0,255)
-fade_in 2.0 (255,255,255,128)
-```
+![[EffectMacro]]
 You grasp the handle and pull the heavy door inward.
 A figure stands there, obscured slightly by the weak porch light. 
 **Visitor**: Oh, good. I thought no one was home. I just needed to borrow a cup of sugar.
@@ -33,6 +26,16 @@ You lend them the sugar. The exchange is brief and pleasant.
 In the end, one stayed silent, letting the moment stretch until it snaps, leaving only the sound of footsteps fading away.
 The moment passed, and the house feels strangely heavy and empty.
 > End
+
+## EffectMacro
+```char
+show alice happy.png 0.2 0.8 1.0
+move alice 0.5 0.8 1.5
+```
+```transition
+fade_out 1.0 (0,0,0,255)
+fade_in 2.0 (255,255,255,128)
+```
 
 ## End
 The story concludes.
