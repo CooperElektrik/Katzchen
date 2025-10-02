@@ -1,4 +1,4 @@
-from parser import parse_value, parse, tokenize
+from katzchen.parser import parse_value, parse, tokenize
 
 
 def check_condition(cond, state):
