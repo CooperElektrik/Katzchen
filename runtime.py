@@ -1,30 +1,4 @@
-from parser import parse_value, parse, tokenize
-
-
-def check_condition(cond, state):
-    if not cond:
-        return True
-    parts = cond.split()
-    if len(parts) == 1:
-        return bool(state.get(parts[0], False))
-    elif len(parts) == 3:
-        var, op, val = parts
-        sval = state.get(var, 0)
-        val = parse_value(val)
-        if op == "==":
-            return sval == val
-        if op == "!=":
-            return sval != val
-        if op == ">":
-            return sval > val
-        if op == "<":
-            return sval < val
-        if op == ">=":
-            return sval >= val
-        if op == "<=":
-            return sval <= val
-    return False
-
+from parser import parse_value, parse, tokenize, check_condition
 
 def play(scenes, start_scene, state=None):
     if state is None:

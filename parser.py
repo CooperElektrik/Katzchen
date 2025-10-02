@@ -298,6 +298,29 @@ def parse_value(val):
     except ValueError:
         return val.strip('"').strip("'")
 
+def check_condition(cond, state):
+    if not cond:
+        return True
+    parts = cond.split()
+    if len(parts) == 1:
+        return bool(state.get(parts[0], False))
+    elif len(parts) == 3:
+        var, op, val = parts
+        sval = state.get(var, 0)
+        val = parse_value(val)
+        if op == "==":
+            return sval == val
+        if op == "!=":
+            return sval != val
+        if op == ">":
+            return sval > val
+        if op == "<":
+            return sval < val
+        if op == ">=":
+            return sval >= val
+        if op == "<=":
+            return sval <= val
+    return False
 
 if __name__ == "__main__":
     with open("script.md", "r") as f:
