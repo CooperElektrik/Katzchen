@@ -1,41 +1,48 @@
-## Start
-*Knock knock.*
+In the early hours of the day,
+there was light knocking on the door.
 
-Naturally, one would follow those up with a "who's there," and the other person would state their name and reason for their arrival. If it was a relative or a loved one, one would welcome them in right away. If not, perhaps only a short conversation would suffice. 
+>[!quote] Suspicious Man
+>Greetings, doctor.
 
-**Visitor**: Hello? Is anybody home?
+I opened the door and there was a suspicious middle-aged man standing in front of my house.
 
-*Knock, knock, knock.*
+>[!quote] Suspicious Man
+>Do you remember me?
+>You saved my life in the past.
 
-This time, it is a little more insistent. The door creaks slightly, as if urging one to respond. 
+>[!question] What shall I do?
+>- [[#Take the girl]]
+>- [[#Decline]]
 
-One could just leave them standing there, of course. There would be no consequence. But what if it is someone who needs help? What if it is someone who just wants to share a joke, or a memory, or even just the weather? This world feels a little smaller when one opens the door, even just a tiny bit.
+## Take the girl 
 
-- [Open the door and greet them](AnswerDoor) set answered=True
-- [Stay perfectly silent and wait](StaySilent) set answered=False
+>[!quote] Suspicious Man
+>Is that so? It'll help both me and this girl out.
+>
+>This girl is a slave without any relatives.
+>You can have her help around the house, or if you have such preferences you can treat her like your toy.
+>There is no one who would object.
+>
+>If you want to know more about her, you can ask her.
+>Then I shall take my leave.
+>
+>Once again, thank you very much for saving me that day.
 
-## AnswerDoor
-![[EffectMacro]]
-You grasp the handle and pull the heavy door inward.
-A figure stands there, obscured slightly by the weak porch light. 
-**Visitor**: Oh, good. I thought no one was home. I just needed to borrow a cup of sugar.
-You lend them the sugar. The exchange is brief and pleasant.
-> End
+The man left.
 
-## StaySilent
-In the end, one stayed silent, letting the moment stretch until it snaps, leaving only the sound of footsteps fading away.
-The moment passed, and the house feels strangely heavy and empty.
-> End
+>[!quote] Girl 
+>Nice to meet you. My name is Sylvie.
+>Thank you very much for accepting me.
+>
+>I cannot do heavy labor, but I believe I can do any simple chores that you would ask of me.
+>
+>However, my previous master enjoyed hearing my screams the most.
+>
+>Please...treat me gently...
 
-## EffectMacro
-```char
-show alice happy.png 0.2 0.8 1.0
-move alice 0.5 0.8 1.5
+## Decline
+
 ```
-```transition
-fade_out 1.0 (0,0,0,255)
-fade_in 2.0 (255,255,255,128)
+Show-Actor -Name "eileen" -Expression "happy" -Position "center"
+Move-Actor -Name "eileen" -ToPosition "right" -Duration 0.5 -Easing "ease_in_out"
 ```
-
-## End
-The story concludes.
