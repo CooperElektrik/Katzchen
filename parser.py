@@ -14,6 +14,7 @@ from dataclasses import dataclass
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(message)s")
 
+re_header = re.compile(r"^## (.+)$")
 re_choice = re.compile(r"^>\[!question\] (.+)$")
 re_choice_option = re.compile(r"^>- \[\[#(.+)\]\]$")
 re_speaker = re.compile(r"^>\[!quote\] (.+)$")
@@ -24,7 +25,7 @@ re_no_fmt = re.compile(r"^(.+)$") # Either narration or code
 
 def tokenize(lines: list[str]) -> list[dict]:
     tokens = []
-    rgxs = [re_choice, re_choice_option, re_speaker, re_follow_last, re_media, re_code, re_no_fmt]
+    rgxs = [re_header, re_choice, re_choice_option, re_speaker, re_follow_last, re_media, re_code, re_no_fmt]
 
     for line in lines:
         line = line.strip()
@@ -35,7 +36,9 @@ def tokenize(lines: list[str]) -> list[dict]:
         for rgx in rgxs:
             if rgx_match := rgx.match(line):
                 logger.debug(f"Hit: {rgx} for line: {line}")
-                if rgx == re_choice:             
+                if rgx == re_header:
+                    tokens.append({"type": "header", "text": rgx_match.group(1)})
+                elif rgx == re_choice:             
                     tokens.append({"type": "choice", "text": rgx_match.group(1)})
                 elif rgx == re_choice_option:
                     tokens.append({"type": "choice_option", "target": rgx_match.group(1)})
@@ -84,14 +87,32 @@ class NarrationEvent:
 
 Event: TypeAlias = Union[ChoiceEvent, DialogueEvent, MediaEvent, CodeEvent, NarrationEvent]
 
+@dataclass
+class Block:
+    name: str
+    events: list[Event]
+
 def parse(tokens: list[dict]) -> dict:
 
-    events: list[dict[str, Any]] = []
-    
+    events: list[Event] = []
+    blocks: list[Block] = []
+    current_block = ""
+
     i = 0
     while i < len(tokens):
         token = tokens[i]
         i += 1
+
+        if token["type"] == "header":
+            if not current_block:
+                current_block = token["text"]
+            else:
+                blocks.append(Block(name=current_block, events=events))
+                logger.debug(f"Block created: {current_block} ({len(events)} events)")
+                current_block = token["text"]
+                events = []
+            continue
+        
 
         if token["type"] == "code":
             active = CodeEvent(code=[])
@@ -124,10 +145,12 @@ def parse(tokens: list[dict]) -> dict:
         elif token["type"] == "no_fmt":
             events.append(NarrationEvent(text=token["text"]))
     
-    return events
+    blocks.append(Block(name=current_block, events=events))
+    logger.debug(f"Block created: {current_block} ({len(events)} event{'s' if len(events) > 1 else ''})")
+    return blocks
 
 if __name__ == "__main__":
-    with open("script.md", "r") as f:
+    with open("scripts/example.md", "r") as f:
         script = f.read()
 
     tokens = tokenize(script.splitlines())

@@ -1,3 +1,5 @@
+## Home
+
 In the early hours of the day,
 there was light knocking on the door.
 
@@ -14,7 +16,7 @@ I opened the door and there was a suspicious middle-aged man standing in front o
 >- [[#Take the girl]]
 >- [[#Decline]]
 
-## Take the girl 
+## Take the girl
 
 >[!quote] Suspicious Man
 >Is that so? It'll help both me and this girl out.
