@@ -11,7 +11,7 @@ setup(
     description='A Markdown-flavored domain-specific language for the Katzen Visual Novel Engine.',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    url='https://github.com/CooperElektrik/katzchen', # Replace with your project's URL
+    url='https://github.com/CooperElektrik/Katzchen', # Replace with your project's URL
     python_requires='>=3.9',
     license="MIT"
 )
